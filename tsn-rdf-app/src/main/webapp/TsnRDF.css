@@ -1,0 +1,28 @@
+@CHARSET "UTF-8";
+#mapid { height: 600px; }
+
+body{
+    padding-top:15px;
+    padding-bottom:15px;
+}
+
+#map-div{
+    padding-left: 30px;
+    padding-right:15px;
+}
+#catAll{
+	margin-right:4px;
+}
+.row{
+    margin-top:10px;
+}
+.selectedCategorie{
+    background-color: #a1f6f7;
+}
+.select{display:none;} 
+.popover{max-width:100%;}
+.popover-content {text-align:center;}
+
+.legendColor {
+    border: 2px solid;
+}
