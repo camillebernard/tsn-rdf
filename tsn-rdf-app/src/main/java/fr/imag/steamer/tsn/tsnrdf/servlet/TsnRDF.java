@@ -1,10 +1,7 @@
 package fr.imag.steamer.tsn.tsnrdf.servlet;
 
-import fr.imag.steamer.tsn.tsnrdf.beans.MapCategories;
-import fr.imag.steamer.tsn.tsnrdf.beans.RDFTest;
-import fr.imag.steamer.tsn.tsnrdf.beans.ResponseCategory;
 import java.io.IOException;
-import java.util.Map;
+import java.util.List;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -13,87 +10,84 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import fr.imag.steamer.tsn.tsnrdf.beans.MapController;
+import fr.imag.steamer.tsn.tsnrdf.beans.MapLayers;
+
 /**
  * Servlet implementation class TsnRDF
  */
-@WebServlet(name = "TsnRDF", urlPatterns = {"/TsnRDF"})
+@WebServlet(name = "TsnRDF", urlPatterns = { "/TsnRDF" })
 public class TsnRDF extends HttpServlet {
 
-    private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 1L;
 
-    /**
-     * @see HttpServlet#HttpServlet()
-     */
-    public TsnRDF() {
-        super();
-        // TODO Auto-generated constructor stub
-    }
+	/**
+	 * @see HttpServlet#HttpServlet()
+	 */
+	public TsnRDF() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
 
-    /**
-     * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse
-     * response)
-     */
-    @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	/**
+	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
+	 */
+	@Override
+	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
-        RDFTest test = null;
-        HttpSession session = request.getSession();
+		MapController test = null;
+		HttpSession session = request.getSession();
 
-        session.setAttribute("categories", MapCategories.query("1999"));
+		// if (request.getParameter("spatiale") == null && request.getParameter("phoneme") == null) {
+		test = new MapController("NUTS1999");
+		// } else if (request.getParameter("spatiale") != null && request.getParameter("phoneme") == null) {
+		// if (request.getParameter("select") == null || request.getParameter("select").equals("point")) {
+		// if (request.getParameter("lat") == null || request.getParameter("lon") == null) {
+		// test = new MapController(request.getParameter("carte"), categoriesMap);
+		// } else if (request.getParameter("rayon") == null) {
+		// test = new MapController(request.getParameter("lat"), request.getParameter("lon"), request.getParameter("carte"), categoriesMap);
+		// } else if (request.getParameter("rayon").equals("") || request.getParameter("rayon") == null || Integer.parseInt(request.getParameter("rayon")) == 0) {
+		// test = new MapController(request.getParameter("lat"), request.getParameter("lon"), request.getParameter("carte"), categoriesMap);
+		// } else {
+		// test = new MapController(request.getParameter("lat"), request.getParameter("lon"), request.getParameter("rayon"), request.getParameter("carte"), categoriesMap);
+		// }
+		// } else {
+		// //TODO REGION
+		// }
 
-        Map<String, ResponseCategory> categoriesMap = (Map<String, ResponseCategory>) session.getAttribute("categories");
-        if (request.getParameter("spatiale") == null && request.getParameter("phoneme") == null) {
-            test = new RDFTest("227", categoriesMap);
-        } else if (request.getParameter("spatiale") != null && request.getParameter("phoneme") == null) {
-            if (request.getParameter("select") == null || request.getParameter("select").equals("point")) {
-                if (request.getParameter("lat") == null || request.getParameter("lon") == null) {
-                    test = new RDFTest(request.getParameter("carte"), categoriesMap);
-                } else if (request.getParameter("rayon") == null) {
-                    test = new RDFTest(request.getParameter("lat"), request.getParameter("lon"), request.getParameter("carte"), categoriesMap);
-                } else if (request.getParameter("rayon").equals("") || request.getParameter("rayon") == null || Integer.parseInt(request.getParameter("rayon")) == 0) {
-                    test = new RDFTest(request.getParameter("lat"), request.getParameter("lon"), request.getParameter("carte"), categoriesMap);
-                } else {
-                    test = new RDFTest(request.getParameter("lat"), request.getParameter("lon"), request.getParameter("rayon"), request.getParameter("carte"), categoriesMap);
-                }
-            } else {
-                //TODO REGION
-            }
+		// } else if (request.getParameter("spatiale") == null && request.getParameter("phoneme") != null) {
+		// if (request.getParameter("api") == null || request.getParameter("api").equals("")) {
+		// test = new MapController(request.getParameter("carte"), categoriesMap);
+		// } else {
+		// test = new MapController(request.getParameter("lat"), request.getParameter("lon"), request.getParameter("rayon"),
+		// request.getParameter("api"), request.getParameter("carte"), false, categoriesMap);
+		// }
+		//
+		// } else if (request.getParameter("spatiale") != null && request.getParameter("phoneme") != null) {
+		// if (request.getParameter("select") == null || request.getParameter("select").equals("point")) {
+		// if (request.getParameter("rayon").equals("") || Integer.parseInt(request.getParameter("rayon")) == 0 || request.getParameter("rayon") == null) {
+		// test = new MapController(request.getParameter("lat"), request.getParameter("lon"), request.getParameter("rayon"), request.getParameter("api"),
+		// request.getParameter("carte"), false, categoriesMap);
+		// } else {
+		// test = new MapController(request.getParameter("lat"), request.getParameter("lon"), request.getParameter("rayon"), request.getParameter("api"),
+		// request.getParameter("carte"), true, categoriesMap);
+		// }
+		// } else {
+		// //TODO regionXphonem
+		// }
+		// }
+		List<String> territorialUnitList = MapLayers.query("NUTS1999");
+		request.setAttribute("test", test);
+		this.getServletContext().getRequestDispatcher("/TsnRDF.jsp").forward(request, response);
+	}
 
-        } else if (request.getParameter("spatiale") == null && request.getParameter("phoneme") != null) {
-            if (request.getParameter("api") == null || request.getParameter("api").equals("")) {
-                test = new RDFTest(request.getParameter("carte"), categoriesMap);
-            } else {
-                test = new RDFTest(request.getParameter("lat"), request.getParameter("lon"), request.getParameter("rayon"),
-                        request.getParameter("api"), request.getParameter("carte"), false, categoriesMap);
-            }
-
-        } else if (request.getParameter("spatiale") != null && request.getParameter("phoneme") != null) {
-            if (request.getParameter("select") == null || request.getParameter("select").equals("point")) {
-                if (request.getParameter("rayon").equals("") || Integer.parseInt(request.getParameter("rayon")) == 0 || request.getParameter("rayon") == null) {
-                    test = new RDFTest(request.getParameter("lat"), request.getParameter("lon"), request.getParameter("rayon"), request.getParameter("api"),
-                            request.getParameter("carte"), false, categoriesMap);
-                } else {
-                    test = new RDFTest(request.getParameter("lat"), request.getParameter("lon"), request.getParameter("rayon"), request.getParameter("api"),
-                            request.getParameter("carte"), true, categoriesMap);
-                }
-            } else {
-                //TODO regionXphonem
-            }
-        }
-        Map<String, ResponseCategory> mapCategories
-                = MapCategories.query("227");
-        request.setAttribute("test", test);
-        this.getServletContext().getRequestDispatcher("/TsnRDF.jsp").forward(request, response);
-    }
-
-    /**
-     * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse
-     * response)
-     */
-    @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        // TODO Auto-generated method stub
-        doGet(request, response);
-    }
+	/**
+	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
+	 */
+	@Override
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		// TODO Auto-generated method stub
+		doGet(request, response);
+	}
 
 }

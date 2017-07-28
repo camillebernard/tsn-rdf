@@ -5,7 +5,7 @@
  */
 package fr.imag.steamer.tsn.tsnrdf.servlet;
 
-import fr.imag.steamer.tsn.tsnrdf.beans.MapCategories;
+import fr.imag.steamer.tsn.tsnrdf.beans.MapLayers;
 import java.io.IOException;
 import java.io.PrintWriter;
 import javax.servlet.ServletException;
@@ -37,7 +37,7 @@ public class RefreshCategoriesLegend extends HttpServlet {
         try (PrintWriter out = response.getWriter()) {
             HttpSession session = request.getSession();
 
-     //       session.setAttribute("categories", MapCategories.query(request.getParameter("carte")));
+     //       session.setAttribute("categories", MapLayers.query(request.getParameter("carte")));
 
             request.getRequestDispatcher("/categoriesLegend").forward(request, response);
         }
