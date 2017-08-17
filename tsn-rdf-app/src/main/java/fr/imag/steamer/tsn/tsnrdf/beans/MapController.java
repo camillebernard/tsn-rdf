@@ -14,6 +14,8 @@ import org.eclipse.rdf4j.repository.http.HTTPRepository;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
+import com.spatial4j.core.io.WktShapeParser;
+
 /**
  * The Class MapController.
  */
@@ -200,16 +202,32 @@ public class MapController {
 					String name = binding.getName();
 					Value value = binding.getValue();
 
-					if (name.equals("sp2")) {
-						String[] temp = value.stringValue().split("\\(|\\)");
-						temp = temp[1].split(" ");
-						JSONArray coord = new JSONArray();
-						coord.add(Double.parseDouble(temp[0]));
-						coord.add(Double.parseDouble(temp[1]));
-						JSONObject point = new JSONObject();
-						point.put("type", "Point");
-						point.put("coordinates", coord);
-						feature.put("geometry", point);
+					if (name.equals("geom")) {
+						//get on polygon
+						String[] polygon = value.stringValue().split("\\((|\\))");
+						//get list of point of one polygon
+						for (String latlonglist :polygon){
+							String [] latlongpaire = latlonglist.split(", ");
+							//Collection latlongJson ;
+							for (String latlong :latlongpaire){
+								JSONArray latlongpaireJson = new JSONArray();
+								String[] parts = latlong.split(" ");
+
+								//String lat = parts[0];
+								//String long = parts[1];
+								latlongpaireJson.add(Double.parseDouble(parts[0]));
+								latlongpaireJson.add(Double.parseDouble(parts[1]));
+								//latlongJson collection.add latlongpaireJson
+							}
+							// add latlongjson au main object.
+							
+
+						}
+						JSONObject multipolygon = new JSONObject();
+						multipolygon.put("type", "Multipolygon");
+						multipolygon.put("coordinates", latlongJson);
+						feature.put("geometry", multipolygon);
+						
 					} else if (name.equals("name")) {
 						prop.put("name", value.stringValue());
 					} else if (name.equals("phonem")) {
@@ -289,7 +307,8 @@ public class MapController {
 	 */
 	private String constructQuery() {
 		
-		/*PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> 
+		/*
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> 
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX geosparql: <http://www.opengis.net/ont/geosparql#>
 PREFIX owl: <http://www.w3.org/2002/07/owl#>
@@ -297,11 +316,13 @@ PREFIX dct: <http://purl.org/dc/terms/>
 PREFIX geof: <http://www.opengis.net/def/function/geosparql/>
 PREFIX uom: <http://www.opengis.net/def/uom/OGC/1.0/>
 PREFIX SKOS: <http://www.w3.org/2004/02/skos/core#>
-PREFIX  rcs: <http://purl.org/fr/eclat/resource/>	
-PREFIX  foaf: <http://xmlns.com/foaf/0.1/>	
 PREFIX tsn: <http://purl.org/net/tsn#>
-PREFIX dbpr: <http://dbpedia.org/resource/>
+
 PREFIX dbo: <http://dbpedia.org/ontology/>
+PREFIX dbr: <http://dbpedia.org/resource/>
+PREFIX dbp: <http://dbpedia.org/property/>
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+PREFIX geonames: <http://www.geonames.org/ontology#> 
 SELECT * 
 WHERE { 
 ?tu a tsn:UnitVersion;
@@ -316,10 +337,54 @@ geosparql:asWKT ?geom; ].
 ?tsn_version tsn:hasAcronym ?tsn_acronym . 
 
 OPTIONAL{
-        
+      SERVICE <http://dbpedia.org/sparql> {   
         ?place rdf:type dbo:Place ;
-               foaf:name ?name .}
-} */
+               rdfs:label ?name .
+   FILTER(LANGMATCHES(LANG(?name), "en"))
+               }
+}
+
+********
+*
+*PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> 
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX geosparql: <http://www.opengis.net/ont/geosparql#>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+PREFIX dct: <http://purl.org/dc/terms/>	
+PREFIX geof: <http://www.opengis.net/def/function/geosparql/>
+PREFIX uom: <http://www.opengis.net/def/uom/OGC/1.0/>
+PREFIX SKOS: <http://www.w3.org/2004/02/skos/core#>
+PREFIX tsn: <http://purl.org/net/tsn#>
+
+PREFIX dbo: <http://dbpedia.org/ontology/>
+PREFIX dbr: <http://dbpedia.org/resource/>
+PREFIX dbp: <http://dbpedia.org/property/>
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+PREFIX geonames: <http://www.geonames.org/ontology#> 
+SELECT * 
+WHERE { 
+?tu a tsn:UnitVersion;
+tsn:hasIdentifier ?code;
+tsn:hasName "BELGIQUE"^^xsd:string ;
+tsn:belongsToLevel ?level;
+geosparql:hasGeometry [
+geosparql:asWKT ?geom; ].
+?level tsn:hasIdentifier ?id_level ;
+       tsn:belongsToNomenclatureVersion ?tsn_version .
+?tsn_version tsn:hasIdentifier "NUTS2003"^^xsd:string .
+?tsn_version tsn:hasAcronym ?tsn_acronym . 
+
+OPTIONAL{
+      
+      SERVICE <http://dbpedia.org/sparql> {   
+        ?place rdf:type dbo:Place ;
+               rdfs:label "Belgium"@en .
+            
+        }
+    }
+    
+}
+ */
 		
 		
 		
@@ -395,13 +460,21 @@ OPTIONAL{
 		// queryString += "OPTIONAL{?rep :hasLemme ?lemme.}\n";
 		// queryString += "} \n";
 		String QUERY = new StringBuilder("PREFIX tsn: <http://purl.org/net/tsn#> ")
-				.append("select ?TU where { ")
-				.append("?TU a tsn:UnitVersion . ")
-				.append("?TU tsn:belongsToLevel ?level . ")
-				.append("?level tsn:belongsToNomenclatureVersion ?tsn_version . ")
+				.append("select * where { ")
+				.append("?TU a tsn:UnitVersion ; ")
+				.append("tsn:hasIdentifier ?code ; ")
+				.append("tsn:hasName ?name ; ")
+				
+				.append("tsn:belongsToLevel ?level; ")
+				.append("geosparql:hasGeometry [ geosparql:asWKT ?geom; ]. ")
+				
+				.append("?level tsn:hasIdentifier ?id_level ; ")
+				.append("tsn:belongsToNomenclatureVersion ?tsn_version . ")				
+				
 				.append("?tsn_version tsn:hasIdentifier \"")
 				.append(tsnVersion)
 				.append("\"^^xsd:string .} ")
+				.append("tsn:hasAcronym ?tsn_acronym ." )
 				.toString();
 		return QUERY;
 	}
