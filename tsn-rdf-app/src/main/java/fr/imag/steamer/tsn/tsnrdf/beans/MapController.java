@@ -1,5 +1,8 @@
 package fr.imag.steamer.tsn.tsnrdf.beans;
 
+import java.util.ArrayList;
+import java.util.Collection;
+
 import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.query.Binding;
 import org.eclipse.rdf4j.query.BindingSet;
@@ -203,49 +206,42 @@ public class MapController {
 					Value value = binding.getValue();
 
 					if (name.equals("geom")) {
-						//get on polygon
-						String[] polygon = value.stringValue().split("\\((|\\))");
+						StringBuilder multipolygonJSON = new StringBuilder("[");
+						//get a table of each polygon composing the multipolygon
+						String[] polygons = value.stringValue().split("\\((|\\))");
 						//get list of point of one polygon
-						for (String latlonglist :polygon){
-							String [] latlongpaire = latlonglist.split(", ");
-							//Collection latlongJson ;
-							for (String latlong :latlongpaire){
+						for (String latlonglist :polygons){
+							String [] latlongpairs = latlonglist.split(", ");
+							multipolygonJSON.append("[");
+							for (String onelatlong :latlongpairs){
 								JSONArray latlongpaireJson = new JSONArray();
-								String[] parts = latlong.split(" ");
-
-								//String lat = parts[0];
-								//String long = parts[1];
-								latlongpaireJson.add(Double.parseDouble(parts[0]));
-								latlongpaireJson.add(Double.parseDouble(parts[1]));
-								//latlongJson collection.add latlongpaireJson
+								String[] parts = onelatlong.split(" ");
+								
+								latlongpaireJson.add(Double.parseDouble(parts[0]));//lat
+								latlongpaireJson.add(Double.parseDouble(parts[1]));//long
+								multipolygonJSON.append(latlongpaireJson);
 							}
-							// add latlongjson au main object.
-							
-
+							multipolygonJSON.append("]");
 						}
+						multipolygonJSON.append("]");
 						JSONObject multipolygon = new JSONObject();
 						multipolygon.put("type", "Multipolygon");
-						multipolygon.put("coordinates", latlongJson);
+						multipolygon.put("coordinates", multipolygonJSON.toString());
 						feature.put("geometry", multipolygon);
 						
 					} else if (name.equals("name")) {
 						prop.put("name", value.stringValue());
-					} else if (name.equals("phonem")) {
-						System.out.println("Phoneme --> " + value.stringValue());
-						prop.put("phonem", value.stringValue());
-					} else if (name.equals("dbp")) {
-						prop.put("dbp", value.stringValue());
+					} else if (name.equals("code")) {
+						System.out.println("code --> " + value.stringValue());
+						prop.put("code", value.stringValue());
+					
 
-					} else if (name.equals("lemme")) {
-						prop.put("lemme", value.stringValue());
+					} else if (name.equals("id_level")) {
+						prop.put("id_level", value.stringValue());
 
-					} else if (name.equals("id")) {
-						prop.put("id", value.stringValue());
-					} else if (name.equals("label")) {
-						// System.out.println(name +" = "+value);
-					} else if (name.equals("poly")) {
-						polygon.put("polygon", value.stringValue());
-					}
+					} else if (name.equals("tsn_acronym")) {
+						prop.put("tsn_acronym", value.stringValue());
+					} 
 				}
 				feature.put("properties", prop);
 				featureList.add(feature);
@@ -473,8 +469,8 @@ OPTIONAL{
 				
 				.append("?tsn_version tsn:hasIdentifier \"")
 				.append(tsnVersion)
-				.append("\"^^xsd:string .} ")
-				.append("tsn:hasAcronym ?tsn_acronym ." )
+				.append("\"^^xsd:string  ; ")
+				.append("tsn:hasAcronym ?tsn_acronym .}" )
 				.toString();
 		return QUERY;
 	}
