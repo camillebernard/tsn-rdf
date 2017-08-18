@@ -2,6 +2,8 @@ package fr.imag.steamer.tsn.tsnrdf.beans;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.query.Binding;
@@ -207,8 +209,19 @@ public class MapController {
 
 					if (name.equals("geom")) {
 						StringBuilder multipolygonJSON = new StringBuilder("[");
+						String inputGeom  = value.stringValue();
+						Pattern pattern = Pattern.compile("(((.*?)))");
+						Matcher matcher = pattern.matcher(inputGeom);
+						if (matcher.find())
+						{
+						    System.out.println(matcher.group(1));
+						    inputGeom = matcher.group(1);
+						}else{
+							System.out.println("Substring GEOM not found !!");
+						}
+						
 						//get a table of each polygon composing the multipolygon
-						String[] polygons = value.stringValue().split("\\((|\\))");
+						String[] polygons = inputGeom.split("\\((|\\))");
 						//get list of point of one polygon
 						for (String latlonglist :polygons){
 							String [] latlongpairs = latlonglist.split(", ");
@@ -216,8 +229,9 @@ public class MapController {
 							for (String onelatlong :latlongpairs){
 								JSONArray latlongpaireJson = new JSONArray();
 								String[] parts = onelatlong.split(" ");
-								
-								latlongpaireJson.add(Double.parseDouble(parts[0]));//lat
+								System.out.println("lat "+parts[0].toString());
+								System.out.println("long "+parts[1].toString());
+								latlongpaireJson.add(Double.parseDouble(parts[0].toString()));//lat
 								latlongpaireJson.add(Double.parseDouble(parts[1]));//long
 								multipolygonJSON.append(latlongpaireJson);
 							}
@@ -302,160 +316,14 @@ public class MapController {
 	 * @return the Query as a String
 	 */
 	private String constructQuery() {
+
 		
-		/*
-PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> 
-PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-PREFIX geosparql: <http://www.opengis.net/ont/geosparql#>
-PREFIX owl: <http://www.w3.org/2002/07/owl#>
-PREFIX dct: <http://purl.org/dc/terms/>	
-PREFIX geof: <http://www.opengis.net/def/function/geosparql/>
-PREFIX uom: <http://www.opengis.net/def/uom/OGC/1.0/>
-PREFIX SKOS: <http://www.w3.org/2004/02/skos/core#>
-PREFIX tsn: <http://purl.org/net/tsn#>
-
-PREFIX dbo: <http://dbpedia.org/ontology/>
-PREFIX dbr: <http://dbpedia.org/resource/>
-PREFIX dbp: <http://dbpedia.org/property/>
-PREFIX foaf: <http://xmlns.com/foaf/0.1/>
-PREFIX geonames: <http://www.geonames.org/ontology#> 
-SELECT * 
-WHERE { 
-?tu a tsn:UnitVersion;
-tsn:hasIdentifier ?id;
-tsn:hasName ?name;
-tsn:belongsToLevel ?level;
-geosparql:hasGeometry [
-geosparql:asWKT ?geom; ].
-?level tsn:hasIdentifier ?id_level ;
-       tsn:belongsToNomenclatureVersion ?tsn_version .
-?tsn_version tsn:hasIdentifier "NUTS2003"^^xsd:string .
-?tsn_version tsn:hasAcronym ?tsn_acronym . 
-
-OPTIONAL{
-      SERVICE <http://dbpedia.org/sparql> {   
-        ?place rdf:type dbo:Place ;
-               rdfs:label ?name .
-   FILTER(LANGMATCHES(LANG(?name), "en"))
-               }
-}
-
-********
-*
-*PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> 
-PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-PREFIX geosparql: <http://www.opengis.net/ont/geosparql#>
-PREFIX owl: <http://www.w3.org/2002/07/owl#>
-PREFIX dct: <http://purl.org/dc/terms/>	
-PREFIX geof: <http://www.opengis.net/def/function/geosparql/>
-PREFIX uom: <http://www.opengis.net/def/uom/OGC/1.0/>
-PREFIX SKOS: <http://www.w3.org/2004/02/skos/core#>
-PREFIX tsn: <http://purl.org/net/tsn#>
-
-PREFIX dbo: <http://dbpedia.org/ontology/>
-PREFIX dbr: <http://dbpedia.org/resource/>
-PREFIX dbp: <http://dbpedia.org/property/>
-PREFIX foaf: <http://xmlns.com/foaf/0.1/>
-PREFIX geonames: <http://www.geonames.org/ontology#> 
-SELECT * 
-WHERE { 
-?tu a tsn:UnitVersion;
-tsn:hasIdentifier ?code;
-tsn:hasName "BELGIQUE"^^xsd:string ;
-tsn:belongsToLevel ?level;
-geosparql:hasGeometry [
-geosparql:asWKT ?geom; ].
-?level tsn:hasIdentifier ?id_level ;
-       tsn:belongsToNomenclatureVersion ?tsn_version .
-?tsn_version tsn:hasIdentifier "NUTS2003"^^xsd:string .
-?tsn_version tsn:hasAcronym ?tsn_acronym . 
-
-OPTIONAL{
-      
-      SERVICE <http://dbpedia.org/sparql> {   
-        ?place rdf:type dbo:Place ;
-               rdfs:label "Belgium"@en .
-            
-        }
-    }
-    
-}
- */
-		
-		
-		
-		// if (!byTU) {
-		// territorialUnit = territorialUnit.replace("?", "\\\\?");
-		//
-		// }
-
-		// String queryString = "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> \n";
-		// queryString += "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n";
-		// queryString += "PREFIX geosparql: <http://www.opengis.net/ont/geosparql#>\n";
-		// queryString += "PREFIX : <http://purl.org/fr/eclat/ontology#>\n";
-		// queryString += "PREFIX owl: <http://www.w3.org/2002/07/owl#>\n";
-		// queryString += "PREFIX dct: <http://purl.org/dc/terms/> \n";
-		// queryString += "PREFIX geof: <http://www.opengis.net/def/function/geosparql/>\n";
-		// queryString += "PREFIX uom: <http://www.opengis.net/def/uom/OGC/1.0/>\n";
-		// queryString += "PREFIX SKOS: <http://www.w3.org/2004/02/skos/core#>\n";
-		// queryString += "PREFIX rcs: <http://purl.org/fr/eclat/resource/> \n";
-		// queryString += "PREFIX foaf: <http://xmlns.com/foaf/0.1/> \n";
-		//
-		// queryString += "SELECT * \n";
-		// queryString += "WHERE { \n";
-		// if (!byRegion) {
-		// if (!byTU) { ///recherche par territorialUnit
-		// queryString += " ?rep :phoneticRepresentationAPI ?phonem.\n";
-		// queryString += " ?rep :isResponseOf ?ei. \n";
-		// queryString += " ?ei :hasSurveyPoint ?pte. \n";
-		// queryString += "?pte dct:title ?name;\n";
-		// queryString += "dct:identifier ?id;\n";
-		// queryString += "geosparql:hasGeometry [\n";
-		// queryString += "geosparql:asWKT ?sp2; ].\n";
-		// queryString += "FILTER regex(?phonem, \"" + territorialUnit + "\")\n";
-		// } else { //recherche par point
-		// queryString += "?pte a :SurveyPoint;\n";
-		// queryString += "dct:identifier ?id;\n";
-		// queryString += "dct:title ?name;\n";
-		// queryString += ":isSurveyPointOf ?ei;\n";
-		// queryString += "geosparql:hasGeometry [\n";
-		// queryString += "geosparql:asWKT ?sp2; ].\n";
-		// queryString += "?ei :hasResponse ?rep.\n";
-		// queryString += "?rep :phoneticRepresentationAPI ?phonem.\n";
-		//
-		// }
-		// if (byRadius) {
-		// queryString += "BIND ((geof:distance('" + point + "',?sp2, uom:metre)) as ?distance)\n";
-		// queryString += "filter(?distance<" + rayon + ")\n";
-		// }
-		// // queryString += " ?intitule :hasTheme ?theme. \n";
-		// //queryString += " ?theme SKOS:prefLabel ?label. \n";
-		//
-		// } else {
-		// queryString += "?pte a :SurveyPoint;\n";
-		// queryString += "dct:identifier ?id;\n";
-		// queryString += "dct:title ?name;\n";
-		// queryString += ":isSurveyPointOf ?ei;\n";
-		// queryString += "geosparql:hasGeometry [\n";
-		// queryString += "geosparql:asWKT ?sp2; ].\n";
-		// queryString += "?ei :hasResponse ?rep.\n";
-		// queryString += "?rep :phoneticRepresentationAPI ?phonem.\n";
-		//
-		// queryString += "rcs:" + region + " geosparql:hasGeometry [\n";
-		// queryString += "geosparql:asWKT ?poly; ].\n";
-		// queryString += "filter(geof:sfWithin(?sp2, ?poly))\n";
-		// if (!byTU) {
-		// queryString += "FILTER regex(?phonem, \"" + territorialUnit + "\")\n";
-		// }
-		//
-		// }
-		// queryString += " ?ei :isAssociatedTo ?intitule. \n";
-		// queryString += " ?intitule :hasMap <http://purl.org/fr/eclat/resource/carte_ALF_" + tsnVersion + ">. \n";
-		//
-		// queryString += "OPTIONAL{?pte foaf:based_near ?dbp.}\n";
-		// queryString += "OPTIONAL{?rep :hasLemme ?lemme.}\n";
-		// queryString += "} \n";
 		String QUERY = new StringBuilder("PREFIX tsn: <http://purl.org/net/tsn#> ")
+				.append("PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> ")
+				.append("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> ")
+				.append("PREFIX geosparql: <http://www.opengis.net/ont/geosparql#> ")
+				.append("PREFIX owl: <http://www.w3.org/2002/07/owl#> ")
+				.append("PREFIX dct: <http://purl.org/dc/terms/>	 ")
 				.append("select * where { ")
 				.append("?TU a tsn:UnitVersion ; ")
 				.append("tsn:hasIdentifier ?code ; ")
@@ -464,7 +332,7 @@ OPTIONAL{
 				.append("tsn:belongsToLevel ?level; ")
 				.append("geosparql:hasGeometry [ geosparql:asWKT ?geom; ]. ")
 				
-				.append("?level tsn:hasIdentifier ?id_level ; ")
+				.append("?level tsn:hasIdentifier \"NUTS_version_1999_level_0\"^^xsd:string  ; ")
 				.append("tsn:belongsToNomenclatureVersion ?tsn_version . ")				
 				
 				.append("?tsn_version tsn:hasIdentifier \"")
