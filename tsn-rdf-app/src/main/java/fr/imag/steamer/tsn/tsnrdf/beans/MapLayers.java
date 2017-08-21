@@ -40,7 +40,7 @@ public class MapLayers {
 		int rank = 0;
 		String queryString = String.format(QUERY, idVersionTSN);
 		System.out.println(queryString);
-		HTTPRepository repository = new HTTPRepository("http://localhost:7200/repositories/change-nuts");
+		HTTPRepository repository = new HTTPRepository("http://clash.imag.fr:7200/repositories/change-nuts");
 		try (RepositoryConnection connection = repository.getConnection()) {
 			TupleQuery tupleQuery = connection.prepareTupleQuery(QueryLanguage.SPARQL, queryString);
 

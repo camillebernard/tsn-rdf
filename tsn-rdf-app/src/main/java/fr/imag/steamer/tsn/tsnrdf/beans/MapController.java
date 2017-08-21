@@ -182,7 +182,8 @@ public class MapController {
 	 * {"phonem":"tøpi:","dbp":"http:\/\/fr.dbpedia.org\/resource\/Saint-Pierre-le-Moûtier","name":"Marcigny","id":"1","category":0}}
 	 */
 	public void request() {
-		HTTPRepository repository = new HTTPRepository("http://localhost:7200/repositories/change-nuts");
+		//HTTPRepository repository = new HTTPRepository("http://localhost:7200/repositories/change-nuts");
+		HTTPRepository repository = new HTTPRepository("http://clash.imag.fr:7200/repositories/change-nuts");
 		RepositoryConnection connection = repository.getConnection();
 		try {
 			// Preparing a SELECT query for later evaluation
@@ -208,22 +209,25 @@ public class MapController {
 					Value value = binding.getValue();
 
 					if (name.equals("geom")) {
+						System.out.println("Find GEOM !");
 						StringBuilder multipolygonJSON = new StringBuilder("[");
 						String inputGeom  = value.stringValue();
-						Pattern pattern = Pattern.compile("(((.*?)))");
+						System.out.println("inputGeom "+inputGeom);
+						Pattern pattern = Pattern.compile("\\(\\(\\((.*?)\\)\\)\\)");
 						Matcher matcher = pattern.matcher(inputGeom);
 						if (matcher.find())
 						{
-						    System.out.println(matcher.group(1));
 						    inputGeom = matcher.group(1);
 						}else{
 							System.out.println("Substring GEOM not found !!");
 						}
 						
 						//get a table of each polygon composing the multipolygon
-						String[] polygons = inputGeom.split("\\((|\\))");
+						System.out.println("input geom after matcher "+inputGeom);
+						String[] polygons = inputGeom.split("[\\(]+|[\\)]+");
 						//get list of point of one polygon
 						for (String latlonglist :polygons){
+							System.out.println("LatLongList one polygon "+latlonglist);
 							String [] latlongpairs = latlonglist.split(", ");
 							multipolygonJSON.append("[");
 							for (String onelatlong :latlongpairs){
@@ -232,14 +236,14 @@ public class MapController {
 								System.out.println("lat "+parts[0].toString());
 								System.out.println("long "+parts[1].toString());
 								latlongpaireJson.add(Double.parseDouble(parts[0].toString()));//lat
-								latlongpaireJson.add(Double.parseDouble(parts[1]));//long
+								latlongpaireJson.add(Double.parseDouble(parts[1].toString()));//long
 								multipolygonJSON.append(latlongpaireJson);
 							}
 							multipolygonJSON.append("]");
 						}
 						multipolygonJSON.append("]");
 						JSONObject multipolygon = new JSONObject();
-						multipolygon.put("type", "Multipolygon");
+						multipolygon.put("type", "MultiPolygon");
 						multipolygon.put("coordinates", multipolygonJSON.toString());
 						feature.put("geometry", multipolygon);
 						
@@ -250,11 +254,11 @@ public class MapController {
 						prop.put("code", value.stringValue());
 					
 
-					} else if (name.equals("id_level")) {
-						prop.put("id_level", value.stringValue());
+					} else if (name.equals("level")) {
+						prop.put("level", value.stringValue());
 
 					} else if (name.equals("tsn_acronym")) {
-						prop.put("tsn_acronym", value.stringValue());
+						prop.put("version", value.stringValue());
 					} 
 				}
 				feature.put("properties", prop);
@@ -263,6 +267,7 @@ public class MapController {
 			featureCollection.put("features", featureList);
 			if (!featureList.isEmpty()) {
 				polygon.put("featureCollection", featureCollection);
+				System.out.println("GeoJson: "+polygon.toJSONString());
 			}
 			// Bindings can also be accessed explicitly by variable name
 			// Binding binding = bindingSet.getBinding("x");

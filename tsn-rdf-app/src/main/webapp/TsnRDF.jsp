@@ -56,144 +56,27 @@
                                 </dl>
                                 <h4>NUTS Territorial Unit Metadata</h4>
                                 <dl class="dl-horizontal">
-                                    <dt>Territorial Unit ID</dt>
-                                    <dd id="info-id"></dd>
+                                    <dt>Territorial Unit CODE</dt>
+                                    <dd id="info-code"></dd>
                                     <dt>Territorial Unit Name</dt>
                                     <dd id="info-name"></dd>
                                     <dt>Territorial Unit Level</dt>
                                     <dd id="info-level"></dd>
+                                    <dt>TSN version</dt>
+                                    <dd id="info-version"></dd>
                                 </dl>
                                
                             </div>
                         </div>
                     </div>
                 </div>
-<!--                 <div class="row"> -->
-<!--                     <div class="col-lg-12"> -->
-<!--                         <div class="col-sm-8">form initilale -->
-<!--                             <div class="form-group"> -->
-<!--                                 <legend>Search</legend> -->
-<!--                             </div> -->
-<!--                             <div class="panel-group"> -->
-<!--                                 <div class="panel panel-default"> -->
-<!--                                     <div class="panel-heading"> -->
-<!--                                         <h4 class="panel-title"> -->
-<!--                                             <input type="checkbox" name="spatiale" id="spatiale" onclick="handleSearchType()"><a data-toggle="collapse" href="#collapse1" > Spatial</a> -->
-<!--                                         </h4> -->
-<!--                                     </div> -->
-<!--                                     <div id="collapse1" class="panel-collapse collapse"> -->
-<!--                                         <div class="panel-body"> -->
-<!--                                             <ul class="nav nav-tabs"> -->
-<!--                                                 <li class="active" ><a data-toggle="tab" href="#selectPoint" >Point</a></li> -->
-<!--                                                 <li ><a data-toggle="tab" href="#selectRegion">Region</a></li> -->
-<!--                                             </ul> -->
-
-<!--                                             <div class="tab-content">						 -->
-<!--                                                 <div id="selectPoint" class="tab-pane fade in active"> -->
-<!--                                                     <div class="row"> -->
-<!--                                                         <div class="form-group"> -->
-<!--                                                             <label for="lat" class="col-lg-2 control-label">Latitude</label> -->
-<!--                                                             <div class="col-lg-10"> -->
-<%--                                                                 <input type="text" id="lat" name="lat" value="${test.lat}"class="form-control" /> --%>
-<!--                                                             </div> -->
-<!--                                                         </div> -->
-<!--                                                     </div> -->
-
-<!--                                                     <div class="row"> -->
-<!--                                                         <div class="form-group"> -->
-<!--                                                             <label for="lon" class="col-lg-2 control-label">Longitude</label> -->
-<!--                                                             <div class="col-lg-10"> -->
-<%--                                                                 <input type="text" id="lon" name="lon" value="${test.lon}" class="form-control" /> --%>
-<!--                                                             </div> -->
-<!--                                                         </div> -->
-<!--                                                     </div> -->
-
-<!--                                                     <div class="row"> -->
-<!--                                                         <div class="form-group"> -->
-<!--                                                             <label for="rayon" class="col-lg-2 control-label">Rayon </label> -->
-<!--                                                             <div class="col-lg-10 "> -->
-<!--                                                                 <div class="input-group"> -->
-<!--                                                                     <span class="input-group-addon"> -->
-<!--                                                                         <input  type="checkbox" id="ch-rayon" name="ch-rayon" onchange='handleRayon(this)'/> -->
-<!--                                                                     </span> -->
-<%--                                                                     <input type="text" id="rayon" name="rayon" value="${test.rayon}" class="form-control" disabled/> --%>
-<!--                                                                     <span class="input-group-addon">m</span> -->
-<!--                                                                 </div> -->
-<!--                                                             </div> -->
-<!--                                                         </div> -->
-<!--                                                     </div> -->
-<!--                                                 </div> -->
-
-
-<!-- <!--                                                 <div id="selectRegion" class="tab-pane fade"> --> -->
-<!-- <!--                                                     <div class="row"> --> -->
-<!-- <!--                                                         <div class="form-group"> --> -->
-<!-- <!--                                                             <label for="rayon" class="col-lg-2 control-label">Region </label> --> -->
-<!-- <!--                                                             <div class="col-lg-10 "> --> -->
-<!-- <!--                                                                 <select class="form-control" name="region" id="SelectRegion"> --> -->
-<!-- <!--                                                                     <option value="region_ara">Auvergne-Rhône-Alpes</option> --> -->
-<!-- <!--                                                                     <option value="region_idf">Ile-de-France</option> --> -->
-<!-- <!--                                                                     <option value="region_occ">Occitanie</option> --> -->
-<!-- <!--                                                                     <option value="region_pac">Provence-Alpes-Côte d'Azur</option>															 --> -->
-<!-- <!--                                                                 </select> --> -->
-<!-- <!--                                                             </div> --> -->
-<!-- <!--                                                         </div> --> -->
-<!-- <!--                                                     </div> --> -->
-<!-- <!--                                                 </div> --> -->
-<!--                                             </div> -->
-<!--                                         </div> -->
-<!--                                     </div> -->
-<!--                                 </div> -->
-<!--                             </div> -->
-
-<!--                             <div class="panel-group"> -->
-<!--                                 <div class="panel panel-default"> -->
-<!--                                     <div class="panel-heading"> -->
-<!--                                         <h4 class="panel-title"> -->
-<!--                                             <input type="checkbox" name="TU_code" id="TU_code" onclick="handleSearchType()"><a data-toggle="collapse" href="#collapse2" > Forme Phonétique (API)</a> -->
-<!--                                         </h4> -->
-<!--                                     </div> -->
-<!--                                     <div id="collapse2" class="panel-collapse collapse"> -->
-<!--                                         <div class="panel-body"> -->
-<!--                                             <div class="row"> -->
-<!--                                                 <div class="form-group"> -->
-<!--                                                     <label for="api" class="col-lg-2 control-label">API </label> -->
-<!--                                                     <div class="col-lg-10 "> -->
-<!--                                                         <div class="input-group "> -->
-<%--                                                             <input type="text" id="api" name="api" value="${test.TU_code}" class="form-control" /> --%>
-<!--                                                             <span class="input-group-btn"> -->
-<!--                                                                 <button class="btn btn-default " id="btnClavier" type="button" data-toggle="popover" data-placement="top">Clavier</button> -->
-<!--                                                             </span> -->
-<!--                                                         </div> -->
-<!--                                                     </div> -->
-<!--                                                 </div> -->
-<!--                                             </div> -->
-<!--                                         </div> -->
-<!--                                     </div> -->
-<!--                                 </div> -->
-<!--                             </div> -->
-<!--                             <input type="button" value="search" class="btn btn-primary" id="search" disabled="true"/>  -->
-<!--                             <input type="button" value="Effacer" id="resetSearch" class="btn btn-secondary" > -->
-<!--                             <br /> -->
-<!--                             <div class="row"> -->
-<!--                                 <div class="form-group"> -->
-<!--                                     <div class="col-lg-10 "> -->
-<!--                                         <input type="radio" name="select" class="select" value="point" id="point" checked="true" /> -->
-<!--                                         <input type="radio" name="select" class="select" value="region" id="region" /> -->
-<!--                                     </div> -->
-<!--                                 </div> -->
-<!--                             </div> -->
-<!--                         </div> -->
-<!--                     </div> -->
-<!--                 </div> -->
-            </form>
+</form>
 
 
         </div>
 
 
     </body>
-<!--     <script src="js/apiKeyboard.js" type="text/javascript"></script> -->
     <script type="text/javascript">
 
                     $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
@@ -230,20 +113,6 @@
                         }
                     }
 
-
-                    $(function () {
-                        // Enables popover
-                        $("[data-toggle=popover]").popover({
-                            html: true,
-                            container: 'body',
-                            title: '<span class="text-info"><strong>Clavier API</strong></span>' + '<button type="button" id="close" class="close" onclick="$(&quot;#btnClavier&quot;).click();">&times;</button>',
-                            content: function () {
-                                return $('#clavier').html();
-                            }
-                        });
-                    });
-
-                    // initialisation de la carte avec les paramètres de la requête
                     initMap(${test.lat}, ${test.lon}, ${test.featureCollection});
     </script>
 </html>

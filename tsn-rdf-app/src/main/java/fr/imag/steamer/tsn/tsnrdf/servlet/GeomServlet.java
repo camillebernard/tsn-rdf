@@ -15,6 +15,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.json.simple.JSONObject;
 
+
 /**
  *
  * @author Philippe GENOUD - Université Grenoble Alpes - Lab LIG-Steamer
@@ -80,5 +81,4 @@ public class GeomServlet extends HttpServlet {
     public String getServletInfo() {
         return "Short description";
     }// </editor-fold>
-
 }

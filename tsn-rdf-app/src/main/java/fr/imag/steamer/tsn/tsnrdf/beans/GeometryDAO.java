@@ -14,11 +14,30 @@ import org.eclipse.rdf4j.repository.http.HTTPRepository;
  */
 public class GeometryDAO {
 
-	private static String QUERY = new StringBuilder("PREFIX ogc: <http://www.opengis.net/ont/geosparql#> ")
-			.append("PREFIX map: <http://purl.org/steamer/nuts#> ")
-			.append("SELECT ?geom ")
-			.append("WHERE {  map:version1999_level2_DEA3  ogc:hasGeometry [  ")
-			.append("ogc:asWKT ?geom;]. } ")
+//	private static String QUERY = new StringBuilder("PREFIX ogc: <http://www.opengis.net/ont/geosparql#> ")
+//			.append("PREFIX map: <http://purl.org/steamer/nuts#> ")
+//			.append("SELECT ?geom ")
+//			.append("WHERE {  map:version1999_level2_DEA3  ogc:hasGeometry [  ")
+//			.append("ogc:asWKT ?geom;]. } ")
+//			.toString();
+	
+	private static String QUERY = new StringBuilder("PREFIX tsn: <http://purl.org/net/tsn#> ")
+			.append("PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> ")
+			.append("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> ")
+			.append("PREFIX geosparql: <http://www.opengis.net/ont/geosparql#> ")
+			.append("PREFIX owl: <http://www.w3.org/2002/07/owl#> ")
+			.append("PREFIX dct: <http://purl.org/dc/terms/>	 ")
+			.append("select * where { ")
+			.append("?TU a tsn:UnitVersion ; ")
+			.append("tsn:hasIdentifier ?code ; ")
+			.append("tsn:hasName ?name ; ")
+			
+			.append("tsn:belongsToLevel ?level; ")
+			.append("geosparql:hasGeometry [ geosparql:asWKT ?geom; ]. ")
+			
+			.append("?level tsn:hasIdentifier \"NUTS_version_1999_level_0\"^^xsd:string  ; ")
+			.append("tsn:belongsToNomenclatureVersion ?tsn_version . }")				
+			
 			.toString();
 
 	// "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> \n" + "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n"
@@ -35,7 +54,7 @@ public class GeometryDAO {
 	 */
 	public static String getGeometry(String uri) {
 		String queryString = String.format(QUERY, uri);
-		HTTPRepository repository = new HTTPRepository("http://localhost:7200/repositories/change-nuts");
+		HTTPRepository repository = new HTTPRepository("http://clash.imag.fr:7200/repositories/change-nuts");
 		try (RepositoryConnection connection = repository.getConnection()) {
 			// try avec resources pour être sur de femer la connexion dans un bloc finally
 			TupleQuery tupleQuery = connection.prepareTupleQuery(QueryLanguage.SPARQL, queryString);

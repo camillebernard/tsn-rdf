@@ -74,38 +74,39 @@ function onEachFeature(feature, layer) {
                         var legendsize = $('.categorie').length;
                         var catIndex;
                         if (selectPointALF) {
-                            document.getElementById("api").setAttribute(
-                                    'value', feature.properties.phonem);
                             document.getElementById('lat').setAttribute(
                                     'value', feature.geometry.coordinates[1]);
                             document.getElementById('lon').setAttribute(
                                     'value', feature.geometry.coordinates[0]);
-                            marker.setLatLng(feature.geometry.coordinates);
-                            document.getElementById('info-lon').innerHTML = feature.geometry.coordinates[0];
-                            document.getElementById('info-lat').innerHTML = feature.geometry.coordinates[1];
-                            document.getElementById("info-api").innerHTML = feature.properties.phonem;
+                            //marker.setLatLng(feature.geometry.coordinates);
+                            //document.getElementById('info-lon').innerHTML = feature.geometry.coordinates[0];
+                            //document.getElementById('info-lat').innerHTML = feature.geometry.coordinates[1];
+                            
+                                var i;
+                                var wkt = new Wkt.Wkt();
+                                wkt.read(feature.geometry);
+                                obj = wkt.toObject(mymap.defaults);
+                                if (Wkt.isArray(obj)) { // Distinguish multigeometries (Arrays) from objects
+                                    for (i in obj) {
+                                        if (obj.hasOwnProperty(i) && !Wkt.isArray(obj[i])) {
+                                            obj[i].addTo(mymap);
+                                            features.push(obj[i]);
+                                        }
+                                    }
+                                } else {
+                                    obj.addTo(mymap); // Add it to the map
+                                    features.push(obj);
+                                }
+                            
                             document.getElementById("info-name").innerHTML = feature.properties.name;
-                            document.getElementById("info-id").innerHTML = feature.properties.id;
-                            if (feature.properties.lemme)
-                                document.getElementById("info-lemme").innerHTML = feature.properties.lemme;
-                            else
-                                document.getElementById("info-lemme").innerHTML = "";
-                            if (feature.properties.dbp)
-                                document.getElementById("info-link").innerHTML = "<a href=\""
-                                        + feature.properties.dbp
-                                        + "\" target='_blank'>"
-                                        + feature.properties.dbp + "</a>";
-                            else
-                                document.getElementById("info-link").innerHTML = "";
-                            if (clickedFeature != null) {
-                                clickedFeature.setStyle(geojsonSelectedMarkerOptions);
-                                catIndex = (clickedFeature.feature.properties.category < legendsize - 1) ? clickedFeature.feature.properties.category : legendsize - 1;
-                                $("#dd" + catIndex).removeClass("selectedCategorie");
-                            }
+                            document.getElementById("info-code").innerHTML = feature.properties.code;
+                            document.getElementById("info-level").innerHTML = feature.properties.level;
+                            document.getElementById("info-version").innerHTML = feature.properties.version;
+                           
                             geojsonSelectedMarkerOptions.fillColor = e.target.options.fillColor;
 
                             catIndex = (e.target.feature.properties.category < legendsize - 1) ? e.target.feature.properties.category : legendsize - 1;
-                            $("#dd" + catIndex).addClass("selectedCategorie");
+                            
                             e.target.setStyle(geojsonMarker);
                             clickedFeature = e.target;
                         }
@@ -389,7 +390,7 @@ $(function () {
                         document.getElementById('info-lat').innerHTML = "";
                         document.getElementById("info-api").innerHTML = "";
                         document.getElementById("info-name").innerHTML = "";
-                        document.getElementById("info-id").innerHTML = "";
+                        document.getElementById("info-code").innerHTML = "";
                         document.getElementById("info-lemme").innerHTML = "";
                         document.getElementById("info-link").innerHTML = "";
                     },
