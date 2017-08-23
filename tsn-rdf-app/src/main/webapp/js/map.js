@@ -1,22 +1,11 @@
 
 //--------------------------------Map script--------------------------------//
-var categoriesColors = ['#ffffcc', '#ffeda0', '#fed976', '#feb24c', '#fd8d3c',
-    '#fc4e2a', '#e31a1c', '#bd0026', '#800026'];
-var selectPointALF = true;
+
 var geoLayer = null;
 var searchLayer = null;
-var circle = null;
-var clickedFeature = null;
 var globalFeatureCollection;
 
-// Extend the Default marker class
-var RedIcon = L.Icon.Default.extend({
-    options: {
-        iconUrl: 'marker-icon-red.png'
-    }
-});
 
-var redIcon = new RedIcon();
 var marker = null;
 
 var mbAttr = 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, '
@@ -39,81 +28,9 @@ var osm = L
 
 var mymap = null;
 var geoJson = null;
-var geojsonMarkerOptions = {
-    radius: 5,
-    fillColor: "#ff7800",
-    color: "#000",
-    weight: 1,
-    opacity: 1,
-    fillOpacity: 0.8
-};
-var geojsonSelectedMarkerOptions = {
-    radius: 5,
-    fillColor: "#ff0000",
-    color: "#000",
-    weight: 1,
-    opacity: 1,
-    fillOpacity: 0.8
-};
-var geojsonMarker = {
-    radius: 6,
-    fillColor: "#00ff00",
-    color: "#000",
-    weight: 1,
-    opacity: 1,
-    fillOpacity: 0.8
-};
-// /---- new marker TODO
+
 var features = [];
 
-function onEachFeature(feature, layer) {
-    layer
-            .on(
-                    'click',
-                    function (e) {
-                        var legendsize = $('.categorie').length;
-                        var catIndex;
-                        if (selectPointALF) {
-                            document.getElementById('lat').setAttribute(
-                                    'value', feature.geometry.coordinates[1]);
-                            document.getElementById('lon').setAttribute(
-                                    'value', feature.geometry.coordinates[0]);
-                            //marker.setLatLng(feature.geometry.coordinates);
-                            //document.getElementById('info-lon').innerHTML = feature.geometry.coordinates[0];
-                            //document.getElementById('info-lat').innerHTML = feature.geometry.coordinates[1];
-                            
-                                var i;
-                                var wkt = new Wkt.Wkt();
-                                wkt.read(feature.geometry);
-                                obj = wkt.toObject(mymap.defaults);
-                                if (Wkt.isArray(obj)) { // Distinguish multigeometries (Arrays) from objects
-                                    for (i in obj) {
-                                        if (obj.hasOwnProperty(i) && !Wkt.isArray(obj[i])) {
-                                            obj[i].addTo(mymap);
-                                            features.push(obj[i]);
-                                        }
-                                    }
-                                } else {
-                                    obj.addTo(mymap); // Add it to the map
-                                    features.push(obj);
-                                }
-                            
-                            document.getElementById("info-name").innerHTML = feature.properties.name;
-                            document.getElementById("info-code").innerHTML = feature.properties.code;
-                            document.getElementById("info-level").innerHTML = feature.properties.level;
-                            document.getElementById("info-version").innerHTML = feature.properties.version;
-                           
-                            geojsonSelectedMarkerOptions.fillColor = e.target.options.fillColor;
-
-                            catIndex = (e.target.feature.properties.category < legendsize - 1) ? e.target.feature.properties.category : legendsize - 1;
-                            
-                            e.target.setStyle(geojsonMarker);
-                            clickedFeature = e.target;
-                        }
-                    });
-}
-
-// ////region drawing
 
 /**
  * charge la géométrie d'un région et la dessine
@@ -226,61 +143,65 @@ function createSearchLayer(geojson) {
 }
 
 function initMap(lat, lon, featureCollection) {
-    // var mymap = L.map('mapid').setView([${test.lat},${test.lon}], 6);
-    // marker = L.marker([lat, lon], {icon: redIcon});
+
     marker = L.marker([lat, lon]);
     mymap = L.map('mapid', {
         center: [lat, lon],
         zoom: 4,
         layers: [grayscale]
     });
-    geoJson = featureCollection;
-    globalFeatureCollection = geoJson;
-    var stateChangingButton = L.easyButton({
-        states: [{
-                stateName: 'selectPointALF', // name the state
-                icon: 'fa-map-marker fa-2x', // and define its properties
-                title: 'zoom to a forest', // like its title
-                onClick: function (btn, map) { // and its callback
-                    selectPointALF = false;
-                    marker.addTo(mymap);
-                    btn.state('selectPointOnMap'); // change state on click!
-                }
-            }, {
-                stateName: 'selectPointOnMap',
-                icon: 'fa-hand-pointer-o fa-2x',
-                title: 'zoom to a school',
-                onClick: function (btn, map) {
-                    selectPointALF = true;
-                    mymap.removeLayer(marker);
-                    btn.state('selectPointALF');
-                }
-            }]
-    });
-    stateChangingButton.addTo(mymap);
-    // ----end button
+    //geoJson = featureCollection;
+    geoJson =  {"type": "FeatureCollection", "features":[
 
-    createDots(geoJson);
-    mymap.on('click', function (e) {
-        if (!selectPointALF) {
-            document.getElementById('lat').setAttribute('value', e.latlng.lat);
-            document.getElementById('lon').setAttribute('value', e.latlng.lng);
-            marker.setLatLng(e.latlng);
-        }
-    });
+    	{ "type":"Feature","id":100,"properties":{"id":"100","count":0},"crs":{"type":"name","properties":{"name":"GEODATA"}},
+    	"geometry":{"type":"MultiPolygon","coordinates":[MANY COORDINATES]
+    	}},
+    	{"type":"Feature","id":200,"properties":{"id":"200","count":0},"crs":{"type":"name","properties":{"name":"GEODATA"}},
+    	"geometry":{"type":"MultiPolygon","coordinates":[MANY COORDINATES]
+    	}},
+
+    	...
+
+    	{"type":"Feature","id":1000,"properties":{"id":"1000","count":0},"crs":{"type":"name","properties":{"name":"GEODATA"}},
+    	"geometry":{"type":"MultiPolygon","coordinates":[MANY COORDINATES]
+    	}]};
+    globalFeatureCollection = geoJson;
+    
+    
     var baseLayers = {
         "Grayscale": grayscale,
         "Streets": streets,
         "OSM": osm
     };
-    L.control.layers(baseLayers).addTo(mymap);
-    /*
-     * L.tileLayer('http://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png', {
-     * maxZoom: 20, attribution: '&copy; Openstreetmap France | &copy; <a
-     * href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-     * }).addTo(mymap);
-     */
+    
+  //Adding multipolygons to map https://stackoverflow.com/questions/43323017/read-multipolygon-geojson-data-and-display-on-leaflet-map
+    L.geoJSON(geoJson.features, {
+        onEachFeature: onEachFeature,
+        style: styleFeature,
+    }).addTo(mymap);
+
+ 
 }
+
+function styleFeature(feature){
+    return {
+        weight: 2.5,
+        opacity: 1,
+        color: getColour('blue'),
+    };
+}
+
+function onEachFeature(feature, layer) {
+	var popupContent = "<p>I started out as a GeoJSON " +
+			feature.geometry.type + ", but now I'm a Leaflet vector!</p>";
+
+	if (feature.properties && feature.properties.popupContent) {
+		popupContent += feature.properties.popupContent;
+	}
+
+	layer.bindPopup(popupContent);
+}
+
 
 /**
  * Recréée les gestinnaire d'évenement pour les checkboxes de la légende.
