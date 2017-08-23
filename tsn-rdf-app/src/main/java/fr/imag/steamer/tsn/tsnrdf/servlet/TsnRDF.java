@@ -36,18 +36,14 @@ public class TsnRDF extends HttpServlet {
 		MapController test = null;
 		HttpSession session = request.getSession();
 
-		// if (request.getParameter("spatiale") == null && request.getParameter("phoneme") == null) {
-		test = new MapController("NUTS1999");
-//		response.setContentType("application/json");
-//        response.setCharacterEncoding("UTF-8");
-//        try (PrintWriter out = response.getWriter()) {
-//             JSONObject geom = new JSONObject();
-//             geom.put("geom", GeometryDAO.getGeometry(request.getParameter("region")));
-//             out.println(geom);
-//        }
-//		
-		
-		//List<String> territorialUnitList = MapLayers.query("NUTS1999");
+		if (request.getParameter("carte") != null) {
+			test = new MapController(request.getParameter("carte"));
+			//List<String> territorialUnitList = MapLayers.query("NUTS1999");
+			
+		}else {
+			System.out.println("ERROR ! No request param.");
+			test = new MapController("NUTS1999");
+		}
 		request.setAttribute("test", test);
 		this.getServletContext().getRequestDispatcher("/TsnRDF.jsp").forward(request, response);
 	}

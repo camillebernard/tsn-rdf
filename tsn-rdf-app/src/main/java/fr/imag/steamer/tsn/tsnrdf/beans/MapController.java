@@ -126,7 +126,8 @@ public class MapController {
 	 * @param tsnversionID the tsnversion ID
 	 * @param radius the radius
 	 */
-	public MapController(String latParam, String lonParam, String rayonParam, String tu, String tsnversionID, boolean radius) {
+	public MapController(String latParam, String lonParam, String rayonParam, String tu, String tsnversionID,
+			boolean radius) {
 		featureCollection = new JSONObject();
 		lon = new String(lonParam);
 		lat = new String(latParam);
@@ -181,14 +182,14 @@ public class MapController {
 	 */
 	public void request() {
 		// HTTPRepository repository = new HTTPRepository("http://localhost:7200/repositories/change-nuts");
-		HTTPRepository repository = new HTTPRepository("http://clash.imag.fr:7200/repositories/change-nuts");
+		HTTPRepository repository = new HTTPRepository("http://clash.imag.fr:7200/repositories/nuts_4326");
 		RepositoryConnection connection = repository.getConnection();
 		try {
 			// Preparing a SELECT query for later evaluation
 			String queryString = constructQuery();
 			System.out.println(queryString);
 			// init the geoJSON collection
-			featureCollection.put("type", "featureCollection");
+			featureCollection.put("type", "FeatureCollection");
 			JSONArray featureList = new JSONArray();
 			TupleQuery tupleQuery = connection.prepareTupleQuery(QueryLanguage.SPARQL, queryString);
 			TupleQueryResult tupleQueryResult = tupleQuery.evaluate();
@@ -198,7 +199,7 @@ public class MapController {
 				JSONObject feature = new JSONObject();
 				JSONObject prop;
 				prop = new JSONObject();
-				
+
 				feature.put("type", "Feature");
 				// Each BindingSet contains one or more Bindings
 				for (Binding binding : bindingSet) {
@@ -208,7 +209,7 @@ public class MapController {
 
 					if (name.equals("geom")) {
 						System.out.println("Find GEOM !");
-						StringBuilder multipolygonJSON = new StringBuilder("[");
+						StringBuilder multipolygonJSON = new StringBuilder("[[");
 						String inputGeom = value.stringValue();
 						System.out.println("inputGeom " + inputGeom);
 						Pattern pattern = Pattern.compile("\\(\\(\\((.*?)\\)\\)\\)");
@@ -255,22 +256,22 @@ public class MapController {
 								multipolygonJSON.append(",");
 							}
 						}
-						multipolygonJSON.append("]");
-						
-						//TEST []
+						multipolygonJSON.append("]]");
+
+						// TEST []
 						Pattern patternEmptyGeom = Pattern.compile("\\[\\]");
 						Matcher matcherEmptyGeom = patternEmptyGeom.matcher(multipolygonJSON.toString());
 						String multipolygonJSONToString = multipolygonJSON.toString();
 						if (matcherEmptyGeom.find()) {
 							System.out.println("Find empty geom");
-							multipolygonJSONToString = multipolygonJSONToString.replace("[],","");
+							multipolygonJSONToString = multipolygonJSONToString.replace("[],", "");
 						} else {
 							System.out.println("No empty GEom !!");
 						}
-						
+
 						JSONObject multipolygon = new JSONObject();
 						multipolygon.put("type", "MultiPolygon");
-						System.out.println("Final Geom :"+multipolygonJSONToString);
+						System.out.println("Final Geom :" + multipolygonJSONToString);
 						multipolygonJSON = new StringBuilder(multipolygonJSONToString);
 						multipolygon.put("coordinates", multipolygonJSON);
 						feature.put("geometry", multipolygon);
@@ -287,19 +288,16 @@ public class MapController {
 					} else if (name.equals("tsn_acronym")) {
 						prop.put("version", value.stringValue());
 					}
-					/*JSONObject styleJson = new JSONObject();
-					styleJson.put("color", "black");
-					styleJson.put("opacity", 1);
-					styleJson.put("fillColor", "white");
-					styleJson.put("fillOpacity", 1);
-					prop.put("style",styleJson );*/
+					/*
+					 * JSONObject styleJson = new JSONObject(); styleJson.put("color", "black"); styleJson.put("opacity", 1); styleJson.put("fillColor", "white"); styleJson.put("fillOpacity", 1); prop.put("style",styleJson );
+					 */
 				}
 				feature.put("properties", prop);
 				featureList.add(feature);
 			}
 			featureCollection.put("features", featureList);
 			if (!featureList.isEmpty()) {
-				polygon.put("featureCollection", featureCollection);
+				polygon = featureCollection;
 				System.out.println("GeoJson: " + polygon.toJSONString());
 			}
 			// Bindings can also be accessed explicitly by variable name
@@ -332,16 +330,27 @@ public class MapController {
 	 */
 	private String constructQuery() {
 
-		String QUERY = new StringBuilder("PREFIX tsn: <http://purl.org/net/tsn#> ").append("PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> ")
-				.append("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> ").append("PREFIX geosparql: <http://www.opengis.net/ont/geosparql#> ")
-				.append("PREFIX owl: <http://www.w3.org/2002/07/owl#> ").append("PREFIX dct: <http://purl.org/dc/terms/>	 ").append("select * where { ")
-				.append("?TU a tsn:UnitVersion ; ").append("tsn:hasIdentifier ?code ; ").append("tsn:hasName ?name ; ")
+		String QUERY = new StringBuilder("PREFIX tsn: <http://purl.org/net/tsn#> ")
+				.append("PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> ")
+				.append("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> ")
+				.append("PREFIX geosparql: <http://www.opengis.net/ont/geosparql#> ")
+				.append("PREFIX owl: <http://www.w3.org/2002/07/owl#> ")
+				.append("PREFIX dct: <http://purl.org/dc/terms/>	 ")
+				.append("select * where { ")
+				.append("?TU a tsn:UnitVersion ; ")
+				.append("tsn:hasIdentifier ?code ; ")
+				.append("tsn:hasName ?name ; ")
 
-				.append("tsn:belongsToLevel ?level; ").append("geosparql:hasGeometry [ geosparql:asWKT ?geom; ]. ")
+				.append("tsn:belongsToLevel ?level; ")
+				.append("geosparql:hasGeometry [ geosparql:asWKT ?geom; ]. ")
 
-				.append("?level tsn:hasIdentifier \"NUTS_version_1999_level_0\"^^xsd:string  ; ").append("tsn:belongsToNomenclatureVersion ?tsn_version . ")
+				.append("?level tsn:hasIdentifier \"NUTS_version_1999_level_0\"^^xsd:string  ; ")
+				.append("tsn:belongsToNomenclatureVersion ?tsn_version . ")
 
-				.append("?tsn_version tsn:hasIdentifier \"").append(tsnVersion).append("\"^^xsd:string  ; ").append("tsn:hasAcronym ?tsn_acronym .}")
+				.append("?tsn_version tsn:hasIdentifier \"")
+				.append(tsnVersion)
+				.append("\"^^xsd:string  ; ")
+				.append("tsn:hasAcronym ?tsn_acronym .}")
 				.toString();
 		return QUERY;
 	}

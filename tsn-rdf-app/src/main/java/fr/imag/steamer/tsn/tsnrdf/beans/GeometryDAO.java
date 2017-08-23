@@ -54,7 +54,7 @@ public class GeometryDAO {
 	 */
 	public static String getGeometry(String uri) {
 		String queryString = String.format(QUERY, uri);
-		HTTPRepository repository = new HTTPRepository("http://clash.imag.fr:7200/repositories/change-nuts");
+		HTTPRepository repository = new HTTPRepository("http://clash.imag.fr:7200/repositories/nuts_4326");
 		try (RepositoryConnection connection = repository.getConnection()) {
 			// try avec resources pour être sur de femer la connexion dans un bloc finally
 			TupleQuery tupleQuery = connection.prepareTupleQuery(QueryLanguage.SPARQL, queryString);

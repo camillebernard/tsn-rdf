@@ -45,11 +45,12 @@
                                 <dl class="dl-horizontal">
                                     <dt>Territorial Mesh versions</dt>
                                     <dd>
-                                        <select class="form-control" name="carte" id="select_tsn_version">
+                                        <select class="form-control" name="carte" id="selectCarte">
                                             <option value="NUTS1999">NUTS version 1999</option>
                                            	<option value="NUTS2003">NUTS version 2003</option> 
                                             <option value="NUTS2006">NUTS version 2006</option> 
                                             <option value="NUTS2010">NUTS version 2010</option> 
+                                            <input type="hidden" id="newCarte" name="newCarte" value="false" />
                                         </select>
                                     </dd>
 
