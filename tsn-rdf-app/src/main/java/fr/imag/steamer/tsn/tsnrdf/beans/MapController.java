@@ -182,7 +182,7 @@ public class MapController {
 	 */
 	public void request() {
 		// HTTPRepository repository = new HTTPRepository("http://localhost:7200/repositories/change-nuts");
-		HTTPRepository repository = new HTTPRepository("http://clash.imag.fr:7200/repositories/nuts_4326");
+		HTTPRepository repository = new HTTPRepository("http://clash.imag.fr:7200/repositories/nuts");
 		RepositoryConnection connection = repository.getConnection();
 		try {
 			// Preparing a SELECT query for later evaluation
@@ -282,7 +282,7 @@ public class MapController {
 						System.out.println("code --> " + value.stringValue());
 						prop.put("code", value.stringValue());
 
-					} else if (name.equals("level")) {
+					} else if (name.equals("levelname")) {
 						prop.put("level", value.stringValue());
 
 					} else if (name.equals("tsn_acronym")) {
@@ -344,7 +344,8 @@ public class MapController {
 				.append("tsn:belongsToLevel ?level; ")
 				.append("geosparql:hasGeometry [ geosparql:asWKT ?geom; ]. ")
 
-				.append("?level tsn:hasIdentifier \"NUTS_version_1999_level_0\"^^xsd:string  ; ")
+				.append("?level tsn:hasIdentifier \"NUTS_version_2003_L_2\"^^xsd:string  ; ")
+				.append("tsn:hasName ?levelname ; ")
 				.append("tsn:belongsToNomenclatureVersion ?tsn_version . ")
 
 				.append("?tsn_version tsn:hasIdentifier \"")

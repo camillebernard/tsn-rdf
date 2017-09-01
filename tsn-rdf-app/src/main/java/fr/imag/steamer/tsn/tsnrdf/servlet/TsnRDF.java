@@ -41,8 +41,8 @@ public class TsnRDF extends HttpServlet {
 			//List<String> territorialUnitList = MapLayers.query("NUTS1999");
 			
 		}else {
-			System.out.println("ERROR ! No request param.");
-			test = new MapController("NUTS1999");
+			//System.out.println("ERROR ! No request param.");
+			test = new MapController("NUTS2003");
 		}
 		request.setAttribute("test", test);
 		this.getServletContext().getRequestDispatcher("/TsnRDF.jsp").forward(request, response);

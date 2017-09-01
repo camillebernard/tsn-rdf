@@ -69,24 +69,19 @@ function initMap(lat, lon, featureCollection) {
 	L.control.layers(baseLayers).addTo(mymap);
 }
 
-function styleFeature(feature) {
-	return {
-		weight : 2.5,
-		opacity : 1,
-		color : getColour('blue'),
-	};
-}
 
 function onEachFeature(feature, layer) {
-	var popupContent = "<h1>Territorial Unit <b>" + feature.properties.code
-			+ "</b></h1>" + "<p>Name: <b>" + feature.properties.name
-			+ "</b></p>" + "<p>Level: <b>" + feature.properties.level
-			+ "</b></p>" + "<p>Version: <b>" + feature.properties.version
-			+ "</b></p>";
+	var popupContent = "<h3> <b>" + feature.properties.code + " </b> territorial unit</h3>" 
+			+ "<h4><b>" + feature.properties.level+ " </b> </h4> " + 
+			"<p>Name: <b>" + feature.properties.name+ " </b> <br/> </p>" ;
+	
+
+
 
 	if (feature.properties && feature.properties.popupContent) {
 		popupContent += feature.properties.popupContent;
 	}
+	//feature.setStyle({fillColor :'blue'});
 
 	layer.bindPopup(popupContent);
 	layer
@@ -98,6 +93,9 @@ function onEachFeature(feature, layer) {
 						document.getElementById("info-level").innerHTML = feature.properties.level;
 						document.getElementById("info-version").innerHTML = feature.properties.version;
 						clickedFeature = e.target;
+						clickedFeature.setStyle({
+						    'color': 'red'
+						  })
 					});
 }
 
