@@ -17,11 +17,12 @@ import org.eclipse.rdf4j.repository.http.HTTPRepository;
 public class MapLayers {
 
 	/** The Constant QUERY. Queries one TSN version. */
-	private static final String QUERY = new StringBuilder("PREFIX tsn: <http://purl.org/net/tsn#> ")
+	private static final String QUERY = new StringBuilder("PREFIX tsn: <http://purl.org/net/tsn#>"
+		+ " PREFIX nuts: <http://purl.org/steamer/nuts/>\"")
 			.append("select ?TU where { ")
 			.append("?TU a tsn:UnitVersion . ")
-			.append("?TU tsn:belongsToLevel ?level . ")
-			.append("?level tsn:belongsToNomenclatureVersion ?tsn_version . ")
+			.append("?TU tsn:isMemberOf ?level . ")
+			.append("?level tsn:isDivisionOf ?tsn_version . ")
 			.append("?tsn_version tsn:hasIdentifier \"%s\"^^xsd:string .} ")
 			.toString();
 
@@ -40,7 +41,7 @@ public class MapLayers {
 		int rank = 0;
 		String queryString = String.format(QUERY, idVersionTSN);
 		System.out.println(queryString);
-		HTTPRepository repository = new HTTPRepository("http://clash.imag.fr:7200/repositories/nuts_4326");
+		HTTPRepository repository = new HTTPRepository("http://steamerlod.imag.fr/repositories/tsn");
 		try (RepositoryConnection connection = repository.getConnection()) {
 			TupleQuery tupleQuery = connection.prepareTupleQuery(QueryLanguage.SPARQL, queryString);
 

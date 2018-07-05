@@ -15,6 +15,7 @@
 
         <script src="wicket.js"></script>
         <script src="wicket-leaflet.js"></script>
+        <script src="L.Map.Sync.js"></script>
 
         <script src="bootstrap/js/jquery-3.2.1.min.js"></script>
         <script src="bootstrap/js/bootstrap.min.js"></script>
@@ -39,37 +40,38 @@
             <form id="formulaire" >
                 <div class="row" id ="map-div">
                     <div id="mapid" class="col-sm-8"></div>
-                    <div class="col-sm-4"> 
-                        <div class="row">
-                            <div class="col-lg-12">
-                                <dl class="dl-horizontal">
-                                    <dt>Territorial Mesh versions</dt>
-                                    <dd>
-                                        <select class="form-control" name="carte" id="selectCarte">
-                                            <option value="NUTS1999">NUTS version 1999</option>
-                                           	<option value="NUTS2003">NUTS version 2003</option> 
-                                            <option value="NUTS2006">NUTS version 2006</option> 
-                                            <option value="NUTS2010">NUTS version 2010</option> 
-                                            <input type="hidden" id="newCarte" name="newCarte" value="false" />
-                                        </select>
-                                    </dd>
+                    <div id="mapidB" class="col-sm-4"></div>
+<!--                     <div class="col-sm-4">  -->
+<!--                         <div class="row"> -->
+<!--                             <div class="col-lg-12"> -->
+<!--                                 <dl class="dl-horizontal"> -->
+<!--                                     <dt>Territorial Mesh versions</dt> -->
+<!--                                     <dd> -->
+<!--                                         <select class="form-control" name="carte" id="selectCarte"> -->
+<!--                                             <option value="NUTS1999">NUTS version 1999</option> -->
+<!--                                            	<option value="NUTS2003">NUTS version 2003</option>  -->
+<!--                                             <option value="NUTS2006">NUTS version 2006</option>  -->
+<!--                                             <option value="NUTS2010">NUTS version 2010</option>  -->
+<!--                                             <input type="hidden" id="newCarte" name="newCarte" value="false" /> -->
+<!--                                         </select> -->
+<!--                                     </dd> -->
 
-                                </dl>
-                                <h4>NUTS Territorial Unit Metadata</h4>
-                                <dl class="dl-horizontal">
-                                    <dt>Territorial Unit CODE</dt>
-                                    <dd id="info-code"></dd>
-                                    <dt>Territorial Unit Name</dt>
-                                    <dd id="info-name"></dd>
-                                    <dt>Territorial Unit Level</dt>
-                                    <dd id="info-level"></dd>
-                                    <dt>TSN version</dt>
-                                    <dd id="info-version"></dd>
-                                </dl>
+<!--                                 </dl> -->
+<!--                                 <h4>NUTS Territorial Unit Metadata</h4> -->
+<!--                                 <dl class="dl-horizontal"> -->
+<!--                                     <dt>Territorial Unit CODE</dt> -->
+<!--                                     <dd id="info-code"></dd> -->
+<!--                                     <dt>Territorial Unit Name</dt> -->
+<!--                                     <dd id="info-name"></dd> -->
+<!--                                     <dt>Territorial Unit Level</dt> -->
+<!--                                     <dd id="info-level"></dd> -->
+<!--                                     <dt>TSN version</dt> -->
+<!--                                     <dd id="info-version"></dd> -->
+<!--                                 </dl> -->
                                
-                            </div>
-                        </div>
-                    </div>
+<!--                             </div> -->
+<!--                         </div> -->
+<!--                     </div> -->
                 </div>
 </form>
 

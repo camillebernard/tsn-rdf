@@ -42,7 +42,8 @@ public class TsnRDF extends HttpServlet {
 			
 		}else {
 			//System.out.println("ERROR ! No request param.");
-			test = new MapController("NUTS2003");
+			test = new MapController("NUTS1999");
+		    //test = new MapController("NUTS_V1999_L2", "NUTS_V2003_L2");
 		}
 		request.setAttribute("test", test);
 		this.getServletContext().getRequestDispatcher("/TsnRDF.jsp").forward(request, response);

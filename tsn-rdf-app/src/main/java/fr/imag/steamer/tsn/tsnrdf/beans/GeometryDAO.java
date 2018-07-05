@@ -21,24 +21,25 @@ public class GeometryDAO {
 //			.append("ogc:asWKT ?geom;]. } ")
 //			.toString();
 	
-	private static String QUERY = new StringBuilder("PREFIX tsn: <http://purl.org/net/tsn#> ")
-			.append("PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> ")
-			.append("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> ")
-			.append("PREFIX geosparql: <http://www.opengis.net/ont/geosparql#> ")
-			.append("PREFIX owl: <http://www.w3.org/2002/07/owl#> ")
-			.append("PREFIX dct: <http://purl.org/dc/terms/>	 ")
-			.append("select * where { ")
-			.append("?TU a tsn:UnitVersion ; ")
-			.append("tsn:hasIdentifier ?code ; ")
-			.append("tsn:hasName ?name ; ")
-			
-			.append("tsn:belongsToLevel ?level; ")
-			.append("geosparql:hasGeometry [ geosparql:asWKT ?geom; ]. ")
-			
-			.append("?level tsn:hasIdentifier \"NUTS_version_1999_level_0\"^^xsd:string  ; ")
-			.append("tsn:belongsToNomenclatureVersion ?tsn_version . }")				
-			
-			.toString();
+	private static String QUERY =  "   PREFIX tsn: <http://purl.org/net/tsn#>   "  + 
+		 "   PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>   "  + 
+		 "   PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>   "  + 
+		 "   PREFIX geosparql: <http://www.opengis.net/ont/geosparql#>   "  + 
+		 "   PREFIX owl: <http://www.w3.org/2002/07/owl#>   "  + 
+		 "   PREFIX dct: <http://purl.org/dc/terms/>	   "  + 
+		 "   PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>  "  + 
+		 "   PREFIX nuts: <http://purl.org/steamer/nuts/>  "  + 
+		 "   select * where {   "  + 
+		 "       ?TU a tsn:UnitVersion ;   "  + 
+		 "           tsn:hasIdentifier ?code ;   "  + 
+		 "           tsn:hasName ?name ;   "  + 
+		 "           tsn:isMemberOf ?level;   "  + 
+		 "           geosparql:hasGeometry [ geosparql:asWKT ?geom; ].   "  + 
+		 "       ?level tsn:hasIdentifier 'NUTS_V1999_L2'^^xsd:string  ;   "  + 
+		 "                                                 tsn:hasName ?levelname ;   "  + 
+		 "                                                 tsn:isDivisionOf ?tsn_version .   "  + 
+		 "       ?tsn_version tsn:hasIdentifier 'NUTS1999'^^xsd:string  ;   "  + 
+		 "                                                   tsn:hasAcronym ?tsn_acronym .}  "  ; 
 
 	// "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> \n" + "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n"
 	// + "PREFIX geosparql: <http://www.opengis.net/ont/geosparql#>\n" + "PREFIX rcs: <http://purl.org/fr/eclat/resource/> \n" + "SELECT ?geom \n" + "WHERE { \n"
@@ -54,7 +55,7 @@ public class GeometryDAO {
 	 */
 	public static String getGeometry(String uri) {
 		String queryString = String.format(QUERY, uri);
-		HTTPRepository repository = new HTTPRepository("http://clash.imag.fr:7200/repositories/nuts_4326");
+		HTTPRepository repository = new HTTPRepository("http://steamerlod.imag.fr/repositories/tsn");
 		try (RepositoryConnection connection = repository.getConnection()) {
 			// try avec resources pour être sur de femer la connexion dans un bloc finally
 			TupleQuery tupleQuery = connection.prepareTupleQuery(QueryLanguage.SPARQL, queryString);

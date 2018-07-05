@@ -25,37 +25,47 @@ var osm = L
 					attribution : '&copy; Openstreetmap France | &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
 				});
 
-var mymap = null;
+var mapA = null;
+var mapB = null
 var geoJson = null;
 
 var features = [];
 
 function initMap(lat, lon, featureCollection) {
 	marker = L.marker([ lat, lon ]);
-	mymap = L.map('mapid', {
+	mapA = L.map('mapid', {
+		center : [ lat, lon ],
+		zoom : 4,
+		layers : [ osm ]
+	});
+	
+	mapB = L.map('mapidB', {
 		center : [ lat, lon ],
 		zoom : 4,
 		layers : [ streets ]
 	});
+	
+	mapA.sync(mapB);
+	mapB.sync(mapA);
+	
 	geoJson = featureCollection;
 	globalFeatureCollection = geoJson;
 
-	var baseLayers = {
-		"Streets" : streets,
-		"Grayscale" : grayscale,
-		"OSM" : osm
-	};
-
 	var myStyle = {
-		"color" : "grey",
-		"weight" : 3,
-		"opacity" : 0.5
+		"color" : "#0B3B39",
+		"weight" : 2,
+		"opacity" : 0.7
 	};
 
 	polygonLayer = L.geoJSON(geoJson, {
 		onEachFeature : onEachFeature,
 		style : myStyle
-	}).addTo(mymap);
+	}).addTo(mapA);
+	
+	polygonLayer = L.geoJSON(geoJson, {
+		onEachFeature : onEachFeature,
+		style : myStyle
+	}).addTo(mapB);
 
 	polygonLayer.addData(geoJson);
 
@@ -65,39 +75,57 @@ function initMap(lat, lon, featureCollection) {
 		"Streets" : streets
 
 	};
-
-	L.control.layers(baseLayers).addTo(mymap);
-}
-
-
-function onEachFeature(feature, layer) {
-	var popupContent = "<h3> <b>" + feature.properties.code + " </b> territorial unit</h3>" 
-			+ "<h4><b>" + feature.properties.level+ " </b> </h4> " + 
-			"<p>Name: <b>" + feature.properties.name+ " </b> <br/> </p>" ;
 	
 
 
+	L.control.layers(baseLayers).addTo(mapA);
+	L.control.layers(baseLayers).addTo(mapB);
+}
 
-	if (feature.properties && feature.properties.popupContent) {
-		popupContent += feature.properties.popupContent;
-	}
-	//feature.setStyle({fillColor :'blue'});
+var lastFeature ; 
+function onEachFeature(feature, layer) {
+	
+	var popupContent =
+			"" + feature.properties.level+ "<br/> " + 
+			"<b>" + feature.properties.code + "</b> - <br/>" + feature.properties.name+ "" ;
+	
+	var newpopup = L.popup({
+		  closeOnClick: true,
+		  autoClose: true, 
+		  className : 'custom-popup', 
+		  //keepInView : true,
+		  closeButton : true
+		}).setContent(popupContent);
+	
+	
 
-	layer.bindPopup(popupContent);
+	layer.bindPopup(newpopup);
 	layer
 			.on(
 					'click',
 					function(e) {
+						if (lastFeature){
+							lastFeature.setStyle(myStyle);
+						}
 						document.getElementById('info-code').innerHTML = feature.properties.code;
 						document.getElementById('info-name').innerHTML = feature.properties.name;
 						document.getElementById("info-level").innerHTML = feature.properties.level;
 						document.getElementById("info-version").innerHTML = feature.properties.version;
 						clickedFeature = e.target;
+						
 						clickedFeature.setStyle({
-						    'color': 'red'
+						    'color': '#FF0080', 
+						    'weight' : 4,
+						    'opacity': 0.7,
+			               //color: 'white',
+			                'fillOpacity': 0.7,
+			                'fillColor': 'red'
 						  })
+						  lastFeature = clickedFeature;
 					});
 }
+
+
 
 /**
  * charge la géométrie d'un région et la dessine
@@ -111,17 +139,17 @@ function loadAndDrawRegion(region) {
 		var i;
 		var wkt = new Wkt.Wkt();
 		wkt.read(data.geom);
-		obj = wkt.toObject(mymap.defaults);
+		obj = wkt.toObject(mapA.defaults);
 		if (Wkt.isArray(obj)) { // Distinguish multigeometries (Arrays) from
 			// objects
 			for (i in obj) {
 				if (obj.hasOwnProperty(i) && !Wkt.isArray(obj[i])) {
-					obj[i].addTo(mymap);
+					obj[i].addTo(mapA);
 					features.push(obj[i]);
 				}
 			}
 		} else {
-			obj.addTo(mymap); // Add it to the map
+			obj.addTo(mapA); // Add it to the map
 			features.push(obj);
 		}
 	}, 'json');
@@ -131,7 +159,7 @@ function loadAndDrawRegion(region) {
 function clearRegion() {
 	for (i in this.features) {
 		if (this.features.hasOwnProperty(i)) {
-			mymap.removeLayer(this.features[i]);
+			mapA.removeLayer(this.features[i]);
 		}
 	}
 	this.features.length = 0;
@@ -139,18 +167,18 @@ function clearRegion() {
 
 function createDots(geojson) {
 	if (circle != null)
-		mymap.removeLayer(circle);
+		mapA.removeLayer(circle);
 	if ($("#ch-rayon").is(":checked") && $("#spatiale").is(":checked")
 			&& document.getElementById('point').checked) {
 		circle = L.circle([ $("#lat").val(), $("#lon").val() ], {
 			color : 'red',
 			fillOpacity : 0.1,
 			radius : $("#rayon").val()
-		}).addTo(mymap);
+		}).addTo(mapA);
 	}
 
 	if (geoLayer != null)
-		mymap.removeLayer(geoLayer);
+		mapA.removeLayer(geoLayer);
 	document.getElementById('nbPoint').innerHTML = geojson.features.length;
 	geoLayer = L
 			.geoJSON(
@@ -178,23 +206,23 @@ function createDots(geojson) {
 							}
 						}
 					});
-	geoLayer.addTo(mymap);
+	geoLayer.addTo(mapA);
 }
 
 function createSearchLayer(geojson) {
 	if (circle != null)
-		mymap.removeLayer(circle);
+		mapA.removeLayer(circle);
 	if ($("#ch-rayon").is(":checked") && $("#spatiale").is(":checked")
 			&& document.getElementById('point').checked) {
 		circle = L.circle([ $("#lat").val(), $("#lon").val() ], {
 			color : 'red',
 			fillOpacity : 0.1,
 			radius : $("#rayon").val()
-		}).addTo(mymap);
+		}).addTo(mapA);
 	}
 
 	if (searchLayer != null)
-		mymap.removeLayer(searchLayer);
+		mapA.removeLayer(searchLayer);
 
 	searchLayer = L.geoJSON(geojson, {
 		onEachFeature : onEachFeature,
@@ -204,7 +232,7 @@ function createSearchLayer(geojson) {
 			return marker;
 		}
 	});
-	searchLayer.addTo(mymap);
+	searchLayer.addTo(mapA);
 }
 
 /**
@@ -254,11 +282,11 @@ $(function() {
 		$("#ch-rayon").prop('checked', false);
 		// clickedFeature=null;
 		if (searchLayer !== null) {
-			mymap.removeLayer(searchLayer);
+			mapA.removeLayer(searchLayer);
 		}
 		clearRegion();
 		if (circle != null) {
-			mymap.removeLayer(circle);
+			mapA.removeLayer(circle);
 		}
 		$("#chercher").prop('disabled', true);
 	});
@@ -289,7 +317,7 @@ $(function() {
 			.change(
 					function() {
 						if (searchLayer !== null) {
-							mymap.removeLayer(searchLayer);
+							mapA.removeLayer(searchLayer);
 						}
 						$
 								.get(

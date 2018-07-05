@@ -48,7 +48,9 @@ public class MapController {
 	private Boolean byTU, byRadius, byRegion;
 
 	/** The tsn version. */
-	private String tsnVersion;
+	private String tsnVersionLevelBefore;
+	
+	private String tsnVersionLevelAfter;
 
 	/** The region. */
 	private String region;
@@ -66,7 +68,26 @@ public class MapController {
 		lon = new String("23.321737");
 		lat = new String("42.678693");
 		point = new String("POINT(23.321737 42.678693 )");
-		tsnVersion = tsnversionID;
+		tsnVersionLevelBefore = tsnversionID;
+		byTU = true;
+		byRadius = false;
+		byRegion = false;
+		request();
+
+	}
+	
+	/**
+	 * Instantiates a new map controller.
+	 *
+	 * @param tsnversionID the tsn version ID
+	 */
+	public MapController(String tsnVersionLevelBefore, String tsnVersionLevelAfter) {
+		featureCollection = new JSONObject();
+		lon = new String("23.321737");
+		lat = new String("42.678693");
+		point = new String("POINT(23.321737 42.678693 )");
+		this.tsnVersionLevelBefore = tsnVersionLevelBefore;
+		this.tsnVersionLevelAfter = tsnVersionLevelAfter;
 		byTU = true;
 		byRadius = false;
 		byRegion = false;
@@ -86,7 +107,7 @@ public class MapController {
 		lon = new String(lonParam);
 		lat = new String(latParam);
 		point = new String("POINT(" + lonParam + " " + latParam + ")");
-		tsnVersion = tsnversionID;
+		tsnVersionLevelBefore = tsnversionID;
 		byTU = true;
 		byRadius = false;
 		byRegion = false;
@@ -108,7 +129,7 @@ public class MapController {
 		lat = new String(latParam);
 		rayon = new String(rayonParam);
 		point = new String("POINT(" + lonParam + " " + latParam + ")");
-		tsnVersion = tsnversionID;
+		tsnVersionLevelBefore = tsnversionID;
 		byTU = true;
 		byRadius = true;
 		byRegion = false;
@@ -136,7 +157,7 @@ public class MapController {
 		}
 		point = new String("POINT(" + lonParam + " " + latParam + ")");
 		territorialUnit = new String(tu);
-		tsnVersion = tsnversionID;
+		tsnVersionLevelBefore = tsnversionID;
 		byTU = false;
 		byRadius = radius;
 		byRegion = false;
@@ -144,19 +165,19 @@ public class MapController {
 
 	}
 
-	/**
-	 * Instantiates a new map controller.
-	 *
-	 * @param region the region
-	 * @param tsnversionID the tsnversion ID
-	 */
-	public MapController(String region, String tsnversionID) {
-		this.region = region;
-		tsnVersion = tsnversionID;
-		byRegion = true;
-		byTU = true;
-		request();
-	}
+//	/**
+//	 * Instantiates a new map controller.
+//	 *
+//	 * @param region the region
+//	 * @param tsnversionID the tsnversion ID
+//	 */
+//	public MapController(String region, String tsnversionID) {
+//		this.region = region;
+//		tsnVersion = tsnversionID;
+//		byRegion = true;
+//		byTU = true;
+//		request();
+//	}
 
 	/**
 	 * Instantiates a new map controller.
@@ -168,7 +189,7 @@ public class MapController {
 	 */
 	public MapController(String region, String tsnversionID, boolean phonem, String api) {
 		this.region = region;
-		tsnVersion = tsnversionID;
+		tsnVersionLevelBefore = tsnversionID;
 		territorialUnit = new String(api);
 		byRegion = true;
 		byTU = false;
@@ -182,16 +203,17 @@ public class MapController {
 	 */
 	public void request() {
 		// HTTPRepository repository = new HTTPRepository("http://localhost:7200/repositories/change-nuts");
-		HTTPRepository repository = new HTTPRepository("http://clash.imag.fr:7200/repositories/nuts");
+		HTTPRepository repository = new HTTPRepository("http://steamerlod.imag.fr/repositories/tsn");
 		RepositoryConnection connection = repository.getConnection();
 		try {
 			// Preparing a SELECT query for later evaluation
-			String queryString = constructQuery();
-			System.out.println(queryString);
+			String queryStringBefore = constructQuery();
+			String queryStringAfter = constructQuery(this.tsnVersionLevelAfter);
+			System.out.println(queryStringBefore);
 			// init the geoJSON collection
 			featureCollection.put("type", "FeatureCollection");
 			JSONArray featureList = new JSONArray();
-			TupleQuery tupleQuery = connection.prepareTupleQuery(QueryLanguage.SPARQL, queryString);
+			TupleQuery tupleQuery = connection.prepareTupleQuery(QueryLanguage.SPARQL, queryStringBefore);
 			TupleQueryResult tupleQueryResult = tupleQuery.evaluate();
 			while (tupleQueryResult.hasNext()) {
 				// Each result is represented by a BindingSet, which corresponds to a result row
@@ -341,15 +363,55 @@ public class MapController {
 				.append("tsn:hasIdentifier ?code ; ")
 				.append("tsn:hasName ?name ; ")
 
-				.append("tsn:belongsToLevel ?level; ")
+				.append("tsn:isMemberOf ?level; ")
 				.append("geosparql:hasGeometry [ geosparql:asWKT ?geom; ]. ")
 
-				.append("?level tsn:hasIdentifier \"NUTS_version_2003_L_2\"^^xsd:string  ; ")
+				.append("?level tsn:hasIdentifier \"NUTS_V1999_L2\"^^xsd:string  ; ")
 				.append("tsn:hasName ?levelname ; ")
-				.append("tsn:belongsToNomenclatureVersion ?tsn_version . ")
+				.append("tsn:isDivisionOf ?tsn_version . ")
 
 				.append("?tsn_version tsn:hasIdentifier \"")
-				.append(tsnVersion)
+				.append(tsnVersionLevelBefore)
+				.append("\"^^xsd:string  ; ")
+				.append("tsn:hasAcronym ?tsn_acronym .}")
+				.toString();
+		return QUERY;
+	}
+
+	
+	/**
+	 * Construct the Query to get the Feature to draw on map.
+	 * 
+	 * Example : PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> PREFIX geosparql: <http://www.opengis.net/ont/geosparql#> PREFIX : <http://purl.org/fr/eclat/ontology#> PREFIX owl:
+	 * <http://www.w3.org/2002/07/owl#> PREFIX dct: <http://purl.org/dc/terms/> PREFIX geof: <http://www.opengis.net/def/function/geosparql/> PREFIX uom: <http://www.opengis.net/def/uom/OGC/1.0/> PREFIX SKOS: <http://www.w3.org/2004/02/skos/core#> PREFIX
+	 * rcs: <http://purl.org/fr/eclat/resource/> PREFIX foaf: <http://xmlns.com/foaf/0.1/> SELECT * WHERE { ?pte a :SurveyPoint; dct:identifier ?id; dct:title ?name; :isSurveyPointOf ?ei; geosparql:hasGeometry [ geosparql:asWKT ?sp2; ]. ?ei :hasResponse
+	 * ?rep. ?rep :phoneticRepresentationAPI ?phonem. ?ei :isAssociatedTo ?intitule. ?intitule :hasMap <http://purl.org/fr/eclat/resource/carte_ALF_1319>. OPTIONAL{?pte foaf:based_near ?dbp.} OPTIONAL{?rep :hasLemme ?lemme.} }
+	 * 
+	 *
+	 * @return the Query as a String
+	 */
+	private String constructQuery(String tsnVersionLevel) {
+
+		String QUERY = new StringBuilder("PREFIX tsn: <http://purl.org/net/tsn#> ")
+				.append("PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> ")
+				.append("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> ")
+				.append("PREFIX geosparql: <http://www.opengis.net/ont/geosparql#> ")
+				.append("PREFIX owl: <http://www.w3.org/2002/07/owl#> ")
+				.append("PREFIX dct: <http://purl.org/dc/terms/>	 ")
+				.append("select * where { ")
+				.append("?TU a tsn:UnitVersion ; ")
+				.append("tsn:hasIdentifier ?code ; ")
+				.append("tsn:hasName ?name ; ")
+
+				.append("tsn:isMemberOf ?level; ")
+				.append("geosparql:hasGeometry [ geosparql:asWKT ?geom; ]. ")
+
+				.append("?level tsn:hasIdentifier \""+tsnVersionLevel+"\"^^xsd:string  ; ")
+				.append("tsn:hasName ?levelname ; ")
+				.append("tsn:isDivisionOf ?tsn_version . ")
+
+				.append("?tsn_version tsn:hasIdentifier \"")
+				.append(tsnVersionLevelBefore) //changer ici et avoir un param NUTS1999
 				.append("\"^^xsd:string  ; ")
 				.append("tsn:hasAcronym ?tsn_acronym .}")
 				.toString();
@@ -500,7 +562,7 @@ public class MapController {
 	 * @return the num carte
 	 */
 	public String getNumCarte() {
-		return tsnVersion;
+		return tsnVersionLevelBefore;
 	}
 
 	/**
@@ -509,7 +571,7 @@ public class MapController {
 	 * @param numCarte the new num carte
 	 */
 	public void setNumCarte(String numCarte) {
-		this.tsnVersion = numCarte;
+		this.tsnVersionLevelBefore = numCarte;
 	}
 
 	/**
